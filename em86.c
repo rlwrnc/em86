@@ -106,6 +106,7 @@ void assemble_instruction()
 {
 }
 
+#if 0
 int main()
 {
 	uint8_t bytes[] = {0x89, 0xd9};
@@ -117,3 +118,4 @@ int main()
 	}
 	return 0;
 }
+#endif

@@ -1,7 +1,7 @@
 cc=gcc
 flags=-g -Wall
 
-all: em86
+all: test
 
 em86: em86.o
 	$(cc) $(flags) -o $@ $<
@@ -9,5 +9,9 @@ em86: em86.o
 %.o: %.c
 	$(cc) $(flags) -c $< -o $@
 
+test: em86.o
+	$(cc) $(flags) em86.o test/test.c -o test/$@
+	test/test
+
 clean:
-	rm em86 *.o
+	rm *.o test/test
