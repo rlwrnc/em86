@@ -4,7 +4,8 @@ em86 is an 8086/88 processor emulator, written in C.
 
 ## Requirements
 
-To build em86, you only need a C compiler that supports C99.
+* Compiler supporting the C99 standard
+* Make (on linux/macOS)
 
 ## Installation
 

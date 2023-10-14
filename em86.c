@@ -113,6 +113,7 @@ int main()
 	Instruction instruction = {0};
 	for (int i = 0; i < length; i += instruction.number_of_bytes) {
 		instruction = decode_instruction(&bytes[i]);
+		print_instruction(instruction);
 	}
 	return 0;
 }
