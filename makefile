@@ -1,17 +1,31 @@
-cc=gcc
-flags=-g -Wall
+CC=gcc
+CFLAGS=-g -Wall
+
+SOURCE_DIR=source
+BINARY_DIR=binaries
+TEST_DIR=test
+
+SOURCES=$(wildcard $(SOURCE_DIR)/*.c)
+OBJECTS=$(patsubst $(SOURCE_DIR)/%.c, $(BINARY_DIR)/%.o, $(SOURCES))
 
 all: test
 
-em86: em86.o
-	$(cc) $(flags) -o $@ $<
+.PHONY: test
+test: $(TEST_DIR)/test
+	@echo Running tests
+	@$(TEST_DIR)/test
 
-%.o: %.c
-	$(cc) $(flags) -c $< -o $@
+$(TEST_DIR)/test: $(BINARY_DIR) $(OBJECTS) $(TEST_DIR)/test.c
+	@echo Compiling tests
+	@$(CC) $(CFLAGS) $(TEST_DIR)/test.c test-framework/unity.c $(OBJECTS) -o $(TEST_DIR)/test
 
-test: em86.o
-	$(cc) $(flags) em86.o test/test.c -o test/$@
-	test/test
+$(OBJECTS): $(SOURCES)
+	@echo Compiling $<
+	@$(CC) $(CFLAGS) $(SOURCES) -c -o $(OBJECTS)
 
+$(BINARY_DIR):
+	@mkdir $@
+
+.PHONY: clean
 clean:
-	rm *.o test/test
+	rm -rf $(BINARY_DIR) test/test

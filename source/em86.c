@@ -82,15 +82,15 @@ Instruction decode_instruction(unsigned char *instruction_ptr)
 	if (instruction_code.second_instruction) {
 		unsigned char second_instruction = *(instruction_ptr + 1);
 		if (instruction_code.to_register) {
-			instruction_code.destination_id = (GET_MOD(second_instruction) << 4)
-				| (instruction_code.is_wide << 3) | GET_REG(second_instruction);
-			instruction_code.source_id = (GET_MOD(second_instruction) << 4)
-				| (instruction_code.is_wide << 3) | GET_RM(second_instruction);
+			instruction_code.destination_id = (instruction_code.is_wide << 3) |
+				GET_REG(second_instruction);
+			instruction_code.source_id = (GET_MOD(second_instruction) << 4) |
+				(instruction_code.is_wide << 3) | GET_RM(second_instruction);
 		} else {
-			instruction_code.destination_id = (GET_MOD(second_instruction) << 4)
-				| (instruction_code.is_wide << 3) | GET_RM(second_instruction);
-			instruction_code.source_id = (GET_MOD(second_instruction) << 4)
-				| (instruction_code.is_wide << 3) | GET_REG(second_instruction);
+			instruction_code.destination_id = (GET_MOD(second_instruction) << 4) |
+				(instruction_code.is_wide << 3) | GET_RM(second_instruction);
+			instruction_code.source_id = (instruction_code.is_wide << 3) |
+				GET_REG(second_instruction);
 		}
 	}
 
