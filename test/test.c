@@ -111,14 +111,51 @@ void test_decode_mov_immediate_to_register_wide()
 	TEST_ASSERT_EQUAL_STRING("mov dx, -4321", string);
 }
 
-void test_decode_mov_source_address_no_displacement()
-{}
+void test_decode_mov_memory_to_register_no_displacement()
+{
+	uint8_t mov_al_bx_plus_si[] = {0x8a, 0x00};
+	uint8_t mov_bx_bp_plus_di[] = {0x8b, 0x1b};
+	uint8_t mov_dx_bp[] = {0x8b, 0x56, 0x00};
 
-void test_decode_mov_source_address_byte_displacement()
-{}
+	Instruction instruction = {0};
+	char string[32] = "";
 
-void test_decode_mov_source_address_wide_displacement()
-{}
+	instruction = decode_instruction(mov_al_bx_plus_si);
+	instruction_to_string(instruction, string);
+	TEST_ASSERT_EQUAL_STRING("mov al, [bx + si]", string);
+
+	instruction = decode_instruction(mov_bx_bp_plus_di);
+	instruction_to_string(instruction, string);
+	TEST_ASSERT_EQUAL_STRING("mov bx, [bp + di]", string);
+
+	instruction = decode_instruction(mov_dx_bp);
+	instruction_to_string(instruction, string);
+	TEST_ASSERT_EQUAL_STRING("mov dx, [bp]", string);
+}
+
+void test_decode_mov_memory_to_register_byte_displacement()
+{
+	uint8_t mov_ah_bh_si_4[] = {0x8a, 0x60, 0x04};
+
+	Instruction instruction = {0};
+	char string[32] = "";
+
+	instruction = decode_instruction(mov_ah_bh_si_4);
+	instruction_to_string(instruction, string);
+	TEST_ASSERT_EQUAL_STRING("mov ah, [bx + si + 4]", string);
+}
+
+void test_decode_mov_memory_to_register_wide_displacement()
+{
+	uint8_t mov_al_bx_si_5000[] = {0x8a, 0x80, 0x87, 0x13};
+
+	Instruction instruction = {0};
+	char string[32] = "";
+
+	instruction = decode_instruction(mov_al_bx_si_5000);
+	instruction_to_string(instruction, string);
+	TEST_ASSERT_EQUAL_STRING("mov al, [bx + si + 5000]", string);
+}
 
 int main()
 {
@@ -126,5 +163,8 @@ int main()
 	RUN_TEST(test_decode_mov_reg_to_reg_byte);
 	RUN_TEST(test_decode_mov_immediate_to_register_byte);
 	RUN_TEST(test_decode_mov_immediate_to_register_wide);
+	RUN_TEST(test_decode_mov_memory_to_register_no_displacement);
+	RUN_TEST(test_decode_mov_memory_to_register_byte_displacement);
+	RUN_TEST(test_decode_mov_memory_to_register_wide_displacement);
 	return UnityEnd();
 }
