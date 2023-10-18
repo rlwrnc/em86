@@ -1,11 +1,13 @@
 # em86
 
+**NOTE:** This repository is a work in progress. Things will change frequently.
+
 em86 is an 8086/88 processor emulator, written in C.
 
 ## Requirements
 
 * Compiler supporting the C99 standard
-* Make (on linux/macOS)
+* Make (if building from source)
 
 ## Installation
 
@@ -15,5 +17,4 @@ em86 is an 8086/88 processor emulator, written in C.
 git clone https://github.com/rlwrnc/em86
 ```
 
-2. Navigate to the project directory and run the appropriate build script. On Linux/macOS, this is `make`.
-On Windows, this is `build.bat`.
+2. Navigate to the project directory and run `make`. Building is currently only supported for macOS and Linux.
