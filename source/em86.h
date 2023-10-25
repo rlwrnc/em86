@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -15,27 +16,29 @@
 #define HAS_OPCODE_EXTENSION(code) ((code.flags) & 0b0010000)
 #define REG_DEST(code) ((code.flags) & 0b100000)
 
+typedef enum {
+	MOV_RM_REG
+} InstructionClass;
+
+typedef enum {
+	AL, CL, DL, BL, AH, CH, DH, BH,
+	AX, CX, DX, BX, SP, BP, SI, DI,
+	BX_SI, BX_DI, BP_SI, BP_DI, M_SI, M_DI, DIRECT, M_BX,
+	BX_SI_8, BX_DI_8, BP_SI_8, BP_DI_8, SI_8, DI_8, BP_8, BX_8,
+	BX_SI_16, BX_DI_16, BP_SI_16, BP_DI_16, SI_16, DI_16, BP_16, BX_16,
+} RMID;
+
 typedef struct {
-	char name[6];
-	unsigned char number_of_bytes;
-	// to_register, second_instruction, opcode_extension, disp_low, disp_high, data_low, data_high
-	unsigned char flags;
-	// TODO: pack bools into bitfield
-	bool to_register;
-	bool is_wide;
-	bool second_instruction;
-	bool opcode_extension;
-	bool disp_low;
-	bool disp_high;
-	bool data_low;
-	bool data_high;
-	unsigned short destination_id;
-	unsigned short source_id;
-	unsigned short displacement;
-	unsigned short immediate;
+	InstructionClass type;
+	size_t number_of_bytes;
+	RMID destination;
+	RMID source;
+	uint16_t displacement;
+	uint16_t data;
 } Instruction;
 
-void instruction_to_string(Instruction instruction, char *string);
+
+void instruction_to_string(Instruction, char *, size_t);
 Instruction decode_instruction(unsigned char *instruction_ptr);
 
 #endif // EM86_H
