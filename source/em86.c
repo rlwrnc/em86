@@ -50,8 +50,8 @@ Instruction decode_mov_rm_reg(const uint8_t *const inst_ptr)
 	bool to_reg = inst_ptr[0] & 2;
 
 	uint8_t mode = (inst_ptr[1] & 0b11000000) >> 6;
-	uint8_t rm_index = (inst_ptr[1] & 0b00111000) >> 3;
-	uint8_t reg_index = inst_ptr[1] & 0b111 | (is_wide << 3);
+	uint8_t reg_index = ((inst_ptr[1] & 0b00111000) >> 3) | (is_wide << 3);
+	uint8_t rm_index = (inst_ptr[1] & 0b00000111);
 
 	uint16_t reg = reg_lookup[reg_index];
 	uint16_t rm;
