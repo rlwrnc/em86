@@ -19,9 +19,9 @@ test: $(TEST_DIR)/test
 	@echo Running tests
 	@$(TEST_DIR)/test
 
-$(TEST_DIR)/test: $(BINARY_DIR) $(OBJECTS) $(TEST_DIR)/test.c
+$(TEST_DIR)/test: $(BINARY_DIR) $(BINARY_DIR)/em86.o $(TEST_DIR)/test.c
 	@echo Compiling tests
-	@$(CC) $(CFLAGS) $(TEST_DIR)/test.c test-framework/unity.c $(OBJECTS) -o $(TEST_DIR)/test
+	@$(CC) $(CFLAGS) $(TEST_DIR)/test.c test-framework/unity.c $(BINARY_DIR)/em86.o -o $(TEST_DIR)/test
 
 $(BINARY_DIR)/%.o: $(SOURCE_DIR)/%.c
 	@echo Compiling $<
