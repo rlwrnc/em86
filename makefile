@@ -8,7 +8,11 @@ TEST_DIR=test
 SOURCES=$(wildcard $(SOURCE_DIR)/*.c)
 OBJECTS=$(patsubst $(SOURCE_DIR)/%.c, $(BINARY_DIR)/%.o, $(SOURCES))
 
-all: test
+all: em86 test
+
+em86: $(BINARY_DIR) $(OBJECTS)
+	@echo Linking $@
+	@$(CC) $(CFLAGS) $(OBJECTS) -o $@
 
 .PHONY: test
 test: $(TEST_DIR)/test
@@ -19,13 +23,14 @@ $(TEST_DIR)/test: $(BINARY_DIR) $(OBJECTS) $(TEST_DIR)/test.c
 	@echo Compiling tests
 	@$(CC) $(CFLAGS) $(TEST_DIR)/test.c test-framework/unity.c $(OBJECTS) -o $(TEST_DIR)/test
 
-$(OBJECTS): $(SOURCES)
+$(BINARY_DIR)/%.o: $(SOURCE_DIR)/%.c
 	@echo Compiling $<
-	@$(CC) $(CFLAGS) $(SOURCES) -c -o $(OBJECTS)
+	@$(CC) $(CFLAGS) $< -c -o $@
 
 $(BINARY_DIR):
+	@echo Creating binaries directory
 	@mkdir $@
 
 .PHONY: clean
 clean:
-	rm -rf $(BINARY_DIR) test/test
+	rm -rf $(BINARY_DIR) ./em86 ./test/test
