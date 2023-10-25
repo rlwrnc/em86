@@ -1,2 +1,3 @@
-./binaries
-./test/test
+binaries
+test/test
+em86
