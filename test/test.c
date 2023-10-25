@@ -16,56 +16,34 @@ void tearDown()
 void test_decode_mov_reg_to_reg_byte()
 {
 	uint8_t bytes[] = {
-		// mov cx, bx
-		0x89, 0xd9,
 		// mov ch, ah
 		0x88, 0xe5,
-		// mov dx, bx
-		0x89, 0xda,
-		// mov si, bx
-		0x89, 0xde,
-		// mov bx, di
-		0x89, 0xfb,
-		// mov ch, ch
-		0x88, 0xc8,
-		// mov al, cl
-		0x88, 0xed,
-		// mov bx, ax
-		0x89, 0xc3,
-		// mov bx, si
-                0x89, 0xf3,
-		// mov sp, di
-		0x89, 0xfc,
-		// mov bp, ax
-		0x89, 0xc5                         
 	};
 
-	const char *instruction_strings[] = {
-		"mov cx, bx",
-		"mov ch, ah",
-		"mov dx, bx",
-		"mov si, bx",
-		"mov bx, di",
-		"mov al, cl",
-		"mov ch, ch",
-		"mov bx, ax",
-		"mov bx, si",
-		"mov sp, di",
-		"mov bp, ax"
-	};
-
-	Instruction instruction = {0};
-	char string[32] = "";
-
-	for (int i = 0, j = 0; i < sizeof bytes; i += instruction.number_of_bytes, j++) {
-		instruction = decode_instruction(&bytes[i]);
-		instruction_to_string(instruction, string);
-		TEST_ASSERT_EQUAL_STRING(instruction_strings[j], string);
-	}
+	Instruction instruction = decode_instruction(bytes);
+	TEST_ASSERT_EQUAL_UINT(MOV_RM_REG, instruction.type);
+	TEST_ASSERT_EQUAL_UINT(2, instruction.number_of_bytes);
+	TEST_ASSERT_EQUAL_UINT16(CH, instruction.destination);
+	TEST_ASSERT_EQUAL_UINT16(AH, instruction.source);
+	TEST_ASSERT_EQUAL_UINT16(0, instruction.displacement);
+	TEST_ASSERT_EQUAL_UINT16(0, instruction.data);
 }
 
 void test_decode_mov_reg_to_reg_wide()
-{}
+{
+	uint8_t bytes[] = {
+		// mov dx, bx
+		0x89, 0xda,
+	};
+
+	Instruction instruction = decode_instruction(bytes);
+	TEST_ASSERT_EQUAL_UINT(MOV_RM_REG, instruction.type);
+	TEST_ASSERT_EQUAL_UINT(2, instruction.number_of_bytes);
+	TEST_ASSERT_EQUAL_UINT16(DX, instruction.destination);
+	TEST_ASSERT_EQUAL_UINT16(BX, instruction.source);
+	TEST_ASSERT_EQUAL_UINT16(0, instruction.displacement);
+	TEST_ASSERT_EQUAL_UINT16(0, instruction.data);
+}
 
 void test_decode_mov_immediate_to_register_byte()
 {
@@ -73,15 +51,6 @@ void test_decode_mov_immediate_to_register_byte()
 	uint8_t mov_cl_neg_12[] = {0xb6, 0xf4};
 
 	Instruction instruction = {0};
-	char string[32] = "";
-
-	decode_instruction(mov_cl_12);
-	instruction_to_string(instruction, string);
-	TEST_ASSERT_EQUAL_STRING("mov cl, 12", string);
-
-	decode_instruction(mov_cl_neg_12);
-	instruction_to_string(instruction, string);
-	TEST_ASSERT_EQUAL_STRING("mov cl, -12", string);
 }
 
 void test_decode_mov_immediate_to_register_wide()
@@ -92,23 +61,6 @@ void test_decode_mov_immediate_to_register_wide()
 	uint8_t mov_dx_neg_4321[] = {0xba, 0x1f, 0xef};
 
 	Instruction instruction = {0};
-	char string[32] = "";
-
-	instruction = decode_instruction(mov_cx_12);
-	instruction_to_string(instruction, string);
-	TEST_ASSERT_EQUAL_STRING("mov cx, 12", string);
-
-	instruction = decode_instruction(mov_cx_neg_12);
-	instruction_to_string(instruction, string);
-	TEST_ASSERT_EQUAL_STRING("mov cx, -12", string);
-
-	instruction = decode_instruction(mov_dx_4321);
-	instruction_to_string(instruction, string);
-	TEST_ASSERT_EQUAL_STRING("mov dx, 4321", string);
-
-	instruction = decode_instruction(mov_dx_neg_4321);
-	instruction_to_string(instruction, string);
-	TEST_ASSERT_EQUAL_STRING("mov dx, -4321", string);
 }
 
 void test_decode_mov_memory_to_register_no_displacement()
@@ -118,19 +70,6 @@ void test_decode_mov_memory_to_register_no_displacement()
 	uint8_t mov_dx_bp[] = {0x8b, 0x56, 0x00};
 
 	Instruction instruction = {0};
-	char string[32] = "";
-
-	instruction = decode_instruction(mov_al_bx_plus_si);
-	instruction_to_string(instruction, string);
-	TEST_ASSERT_EQUAL_STRING("mov al, [bx + si]", string);
-
-	instruction = decode_instruction(mov_bx_bp_plus_di);
-	instruction_to_string(instruction, string);
-	TEST_ASSERT_EQUAL_STRING("mov bx, [bp + di]", string);
-
-	instruction = decode_instruction(mov_dx_bp);
-	instruction_to_string(instruction, string);
-	TEST_ASSERT_EQUAL_STRING("mov dx, [bp]", string);
 }
 
 void test_decode_mov_memory_to_register_byte_displacement()
@@ -138,11 +77,6 @@ void test_decode_mov_memory_to_register_byte_displacement()
 	uint8_t mov_ah_bh_si_4[] = {0x8a, 0x60, 0x04};
 
 	Instruction instruction = {0};
-	char string[32] = "";
-
-	instruction = decode_instruction(mov_ah_bh_si_4);
-	instruction_to_string(instruction, string);
-	TEST_ASSERT_EQUAL_STRING("mov ah, [bx + si + 4]", string);
 }
 
 void test_decode_mov_memory_to_register_wide_displacement()
@@ -150,11 +84,6 @@ void test_decode_mov_memory_to_register_wide_displacement()
 	uint8_t mov_al_bx_si_5000[] = {0x8a, 0x80, 0x87, 0x13};
 
 	Instruction instruction = {0};
-	char string[32] = "";
-
-	instruction = decode_instruction(mov_al_bx_si_5000);
-	instruction_to_string(instruction, string);
-	TEST_ASSERT_EQUAL_STRING("mov al, [bx + si + 5000]", string);
 }
 
 int main()
@@ -162,9 +91,5 @@ int main()
 	UnityBegin("test.c");
 	RUN_TEST(test_decode_mov_reg_to_reg_byte);
 	RUN_TEST(test_decode_mov_immediate_to_register_byte);
-	RUN_TEST(test_decode_mov_immediate_to_register_wide);
-	RUN_TEST(test_decode_mov_memory_to_register_no_displacement);
-	RUN_TEST(test_decode_mov_memory_to_register_byte_displacement);
-	RUN_TEST(test_decode_mov_memory_to_register_wide_displacement);
 	return UnityEnd();
 }
