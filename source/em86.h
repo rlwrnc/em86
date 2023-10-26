@@ -17,7 +17,7 @@
 #define REG_DEST(code) ((code.flags) & 0b100000)
 
 typedef enum {
-	MOV_RM_REG
+	MOV_RM_REG, MOV_REG_IMMED, MOV_RM_IMMED
 } InstructionClass;
 
 typedef enum {

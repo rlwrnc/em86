@@ -42,24 +42,6 @@ void test_decode_mov_reg_to_reg_wide()
 	TEST_INSTRUCTION(instruction, MOV_RM_REG, 2, DX, BX, 0, 0);
 }
 
-void test_decode_mov_immediate_to_register_byte()
-{
-	uint8_t mov_cl_12[] = {0xb1, 0x0c};
-	uint8_t mov_cl_neg_12[] = {0xb6, 0xf4};
-
-	Instruction instruction = {0};
-}
-
-void test_decode_mov_immediate_to_register_wide()
-{
-	uint8_t mov_cx_12[] = {0xb9, 0x0c, 0x00};
-	uint8_t mov_cx_neg_12[] = {0xb9, 0xf4, 0xff};
-	uint8_t mov_dx_4321[] = {0xba, 0xe1, 0x10};
-	uint8_t mov_dx_neg_4321[] = {0xba, 0x1f, 0xef};
-
-	Instruction instruction = {0};
-}
-
 void test_decode_mov_memory_to_register_no_displacement()
 {
 	uint8_t mov_al_bx_si[] = {0x8a, 0x00};
@@ -96,6 +78,62 @@ void test_decode_mov_memory_to_register_wide_displacement()
 	TEST_INSTRUCTION(instruction, MOV_RM_REG, 4, AL, BX_SI_16, 5000, 0);
 }
 
+void test_decode_mov_imm_to_register_byte()
+{
+	uint8_t mov_al_12[] = {0xb0, 0x0c};
+	uint8_t mov_al_n12[] = {0xb0, 0xf4};
+	
+	Instruction instruction = decode_instruction(mov_al_12);
+	TEST_INSTRUCTION(instruction, MOV_REG_IMMED, 2, AL, 0, 0, 12);
+
+	instruction = decode_instruction(mov_al_n12);
+	TEST_INSTRUCTION(instruction, MOV_REG_IMMED, 2, AL, 0, 0, 12);
+}
+
+void test_decode_mov_imm_to_register_wide()
+{
+	uint8_t mov_ax_n12[] = {0xb8, 0xf4, 0xff};
+	uint8_t mov_bx_3858[] = {0xbb, 0x12, 0x0f};
+	
+	Instruction instruction = decode_instruction(mov_ax_n12);
+	TEST_INSTRUCTION(instruction, MOV_REG_IMMED, 3, AX, 0, 0, 12);
+
+	instruction = decode_instruction(mov_bx_3858);
+	TEST_INSTRUCTION(instruction, MOV_REG_IMMED, 3, BL, 0, 0, 3858);
+}
+
+void test_decode_mov_register_to_memory_signed_displacement()
+{
+	uint8_t mov_si_n300_cx[] = {0x89, 0x8c, 0xd4, 0xfe};
+
+	Instruction instruction = decode_instruction(mov_si_n300_cx);
+	TEST_INSTRUCTION(instruction, MOV_RM_REG, 4, SI_16, CX, (uint16_t) -300, 0);
+}
+
+void test_decode_mov_memory_to_register_signed_displacement()
+{
+	uint8_t mov_dx_bx_n30[] = {0x8b, 0x57, 0xe0 };
+
+	Instruction instruction = decode_instruction(mov_dx_bx_n30);
+	TEST_INSTRUCTION(instruction, MOV_RM_REG, 3, DX, BX_8, (uint16_t) -30, 0);
+}
+
+void test_decode_mov_byte_to_memory_explicit()
+{
+	uint8_t mov_bp_di_9[] = {0xc6, 0x03, 0x09};
+
+	Instruction instruction = decode_instruction(mov_bp_di_9);
+	TEST_INSTRUCTION(instruction, MOV_RM_IMMED, 3, BP_DI, 0, 0, 9);
+}
+
+void test_decode_mov_word_to_memory_explicit()
+{
+	uint8_t mov_di_901_340[] = {0xc7, 0x85, 0x85, 0x03, 0x54, 0x01};
+
+	Instruction instruction = decode_instruction(mov_di_901_340);
+	TEST_INSTRUCTION(instruction, MOV_RM_IMMED, 6, DI_16, 0, 901, 340);
+}
+
 int main()
 {
 	UnityBegin("test.c");
@@ -105,5 +143,11 @@ int main()
 	RUN_TEST(test_decode_mov_memory_to_register_direct);
 	RUN_TEST(test_decode_mov_memory_to_register_byte_displacement);
 	RUN_TEST(test_decode_mov_memory_to_register_wide_displacement);
+	RUN_TEST(test_decode_mov_imm_to_register_byte);
+	RUN_TEST(test_decode_mov_imm_to_register_wide);
+	RUN_TEST(test_decode_mov_register_to_memory_signed_displacement);
+	RUN_TEST(test_decode_mov_memory_to_register_signed_displacement);
+	RUN_TEST(test_decode_mov_word_to_memory_explicit);
+	RUN_TEST(test_decode_mov_word_to_memory_explicit);
 	return UnityEnd();
 }
