@@ -64,9 +64,12 @@ void test_decode_mov_memory_to_register_no_displacement()
 {
 	uint8_t mov_al_bx_si[] = {0x8a, 0x00};
 	uint8_t mov_bx_bp_di[] = {0x8b, 0x1b};
-	uint8_t mov_dx_bp[] = {0x8b, 0x56, 0x00};
 
-	Instruction instruction = {0};
+	Instruction instruction = decode_instruction(mov_al_bx_si);
+	TEST_INSTRUCTION(instruction, MOV_RM_REG, 2, AL, BX_SI, 0, 0);
+
+	instruction = decode_instruction(mov_bx_bp_di);
+	TEST_INSTRUCTION(instruction, MOV_RM_REG, 2, BX, BP_DI, 0, 0);
 }
 
 void test_decode_mov_memory_to_register_direct()
@@ -98,6 +101,7 @@ int main()
 	UnityBegin("test.c");
 	RUN_TEST(test_decode_mov_reg_to_reg_byte);
 	RUN_TEST(test_decode_mov_reg_to_reg_wide);
+	RUN_TEST(test_decode_mov_memory_to_register_no_displacement);
 	RUN_TEST(test_decode_mov_memory_to_register_direct);
 	RUN_TEST(test_decode_mov_memory_to_register_byte_displacement);
 	RUN_TEST(test_decode_mov_memory_to_register_wide_displacement);
