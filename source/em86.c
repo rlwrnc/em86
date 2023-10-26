@@ -57,6 +57,10 @@ Instruction decode_mov_rm_reg(const uint8_t *const inst_ptr)
 	uint16_t rm;
 
 	if (mode == 0) {
+		if (rm_index == 0b110) {
+			inst.displacement = (inst_ptr[3] << 8) | inst_ptr[2];
+			inst.number_of_bytes += 2;
+		}
 		rm_index |= (mode << 3);
 		rm = rm_lookup[rm_index];
 	}
