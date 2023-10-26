@@ -1,11 +1,11 @@
 #include "em86.h"
 
-static RMID reg_lookup[16] = {
+static const RMID reg_lookup[16] = {
 	AL, CL, DL, BL, AH, CH, DH, BH,
 	AX, CX, DX, BX, SP, BP, SI, DI
 };
 
-static RMID rm_lookup[24] = {
+static const RMID rm_lookup[24] = {
 	BX_SI, BX_DI, BP_SI, BP_DI, M_SI, M_DI, DIRECT, M_BX,
 	BX_SI_8, BX_DI_8, BP_SI_8, BP_DI_8, SI_8, DI_8, BP_8, BX_8,
 	BX_SI_16, BX_DI_16, BP_SI_16, BP_DI_16, SI_16, DI_16, BP_16, BX_16,
@@ -95,19 +95,108 @@ Instruction decode_mov_rm_reg(const uint8_t *const inst_ptr)
 	return inst;
 }
 
+Instruction decode_mov_rm_immed(const uint8_t *const inst_ptr)
+{
+	Instruction inst = {MOV_RM_IMMED, 2, .source = IMMEDIATE};
+
+	bool is_wide = inst_ptr[0] & 1;
+
+	uint8_t mode = inst_ptr[1] & 0b11000000;
+	uint8_t rm   = inst_ptr[1] & 0b00000111;
+
+	if (mode == 0) {
+		if (rm == 0b110) {
+			inst.displacement = (inst_ptr[3] << 8) | inst_ptr[2];
+			inst.number_of_bytes += 2;
+		}
+		rm |= (mode << 3);
+		inst.destination = rm_lookup[rm];
+	}
+
+	if (mode == 1) {
+		rm |= (mode << 3);
+		inst.destination = rm_lookup[rm];
+		inst.displacement = inst_ptr[2];
+		inst.number_of_bytes += 1;
+	}
+
+	if (mode == 2) {
+		rm |= (mode << 3);
+		inst.destination = rm_lookup[rm];
+		inst.displacement = (inst_ptr[3] << 8) | inst_ptr[2];
+		inst.number_of_bytes += 2;
+	}
+
+	if (mode == 3) {
+		rm |= (is_wide << 3);
+		inst.destination = reg_lookup[rm];
+	}
+
+	if (is_wide) {
+		int p = inst.number_of_bytes;
+		inst.data = (inst_ptr[p+1] << 8) | inst_ptr[p];
+		inst.number_of_bytes += 2;
+	} else {
+		inst.data = inst_ptr[inst.number_of_bytes];
+		inst.number_of_bytes += 1;
+	}
+
+	return inst;
+}
+
+Instruction decode_mov_reg_immed(const uint8_t *const inst_ptr)
+{
+	Instruction inst = {MOV_REG_IMMED, 2, .source = IMMEDIATE};
+
+	bool is_wide = inst_ptr[0] & 0b00001000;
+	uint8_t reg = inst_ptr[0] & 0b00000111;
+
+	inst.destination = reg_lookup[reg];
+	
+	if (is_wide) {
+		inst.data = (inst_ptr[2] << 8) | inst_ptr[1];
+		inst.number_of_bytes += 1;
+	} else {
+		inst.data = inst_ptr[1];
+	}
+
+	return inst;
+}
+
 Instruction decode_instruction(unsigned char *instruction_ptr)
 {
 	typedef Instruction (*DecodeFunc)(const uint8_t *const);
 	static DecodeFunc opcode_dispatch[256] = {
+		/* moves */
 		[0x88] = decode_mov_rm_reg,
 		[0x89] = decode_mov_rm_reg,
 		[0x8a] = decode_mov_rm_reg,
 		[0x8b] = decode_mov_rm_reg,
+
+		[0xb0] = decode_mov_reg_immed,
+		[0xb1] = decode_mov_reg_immed,
+		[0xb2] = decode_mov_reg_immed,
+		[0xb3] = decode_mov_reg_immed,
+		[0xb4] = decode_mov_reg_immed,
+		[0xb5] = decode_mov_reg_immed,
+		[0xb6] = decode_mov_reg_immed,
+		[0xb7] = decode_mov_reg_immed,
+		[0xb8] = decode_mov_reg_immed,
+		[0xb9] = decode_mov_reg_immed,
+		[0xba] = decode_mov_reg_immed,
+		[0xbb] = decode_mov_reg_immed,
+		[0xbc] = decode_mov_reg_immed,
+		[0xbd] = decode_mov_reg_immed,
+		[0xbe] = decode_mov_reg_immed,
+		[0xbf] = decode_mov_reg_immed,
+		
+		[0xc6] = decode_mov_rm_immed,
+		[0xc7] = decode_mov_rm_immed,
 	};
 	
 	DecodeFunc decode = opcode_dispatch[instruction_ptr[0]];
 	if (decode == 0)
-		return (Instruction) {0};
+		return (Instruction) {NO_CLASS};
 	return decode(instruction_ptr);
 }
 

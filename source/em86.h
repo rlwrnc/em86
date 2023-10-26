@@ -17,7 +17,8 @@
 #define REG_DEST(code) ((code.flags) & 0b100000)
 
 typedef enum {
-	MOV_RM_REG, MOV_REG_IMMED, MOV_RM_IMMED
+	MOV_RM_REG, MOV_REG_IMMED, MOV_RM_IMMED,
+	NO_CLASS
 } InstructionClass;
 
 typedef enum {
@@ -26,6 +27,7 @@ typedef enum {
 	BX_SI, BX_DI, BP_SI, BP_DI, M_SI, M_DI, DIRECT, M_BX,
 	BX_SI_8, BX_DI_8, BP_SI_8, BP_DI_8, SI_8, DI_8, BP_8, BX_8,
 	BX_SI_16, BX_DI_16, BP_SI_16, BP_DI_16, SI_16, DI_16, BP_16, BX_16,
+	IMMEDIATE
 } RMID;
 
 typedef struct {

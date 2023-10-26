@@ -78,28 +78,36 @@ void test_decode_mov_memory_to_register_wide_displacement()
 	TEST_INSTRUCTION(instruction, MOV_RM_REG, 4, AL, BX_SI_16, 5000, 0);
 }
 
-void test_decode_mov_imm_to_register_byte()
+void test_decode_mov_byte_to_register_positive()
 {
 	uint8_t mov_al_12[] = {0xb0, 0x0c};
-	uint8_t mov_al_n12[] = {0xb0, 0xf4};
 	
 	Instruction instruction = decode_instruction(mov_al_12);
-	TEST_INSTRUCTION(instruction, MOV_REG_IMMED, 2, AL, 0, 0, 12);
-
-	instruction = decode_instruction(mov_al_n12);
-	TEST_INSTRUCTION(instruction, MOV_REG_IMMED, 2, AL, 0, 0, 12);
+	TEST_INSTRUCTION(instruction, MOV_REG_IMMED, 2, AL, IMMEDIATE, 0, 0x0c);
 }
 
-void test_decode_mov_imm_to_register_wide()
+void test_decode_mov_byte_to_register_negative()
 {
-	uint8_t mov_ax_n12[] = {0xb8, 0xf4, 0xff};
+	uint8_t mov_al_n12[] = {0xb0, 0xf4};
+
+	Instruction instruction = decode_instruction(mov_al_n12);
+	TEST_INSTRUCTION(instruction, MOV_REG_IMMED, 2, AL, IMMEDIATE, 0, 0xf4);
+}
+
+void test_decode_mov_word_to_register()
+{
 	uint8_t mov_bx_3858[] = {0xbb, 0x12, 0x0f};
 	
-	Instruction instruction = decode_instruction(mov_ax_n12);
-	TEST_INSTRUCTION(instruction, MOV_REG_IMMED, 3, AX, 0, 0, 12);
+	Instruction instruction = decode_instruction(mov_bx_3858);
+	TEST_INSTRUCTION(instruction, MOV_REG_IMMED, 3, BL, IMMEDIATE, 0, 0x0f12);
+}
 
-	instruction = decode_instruction(mov_bx_3858);
-	TEST_INSTRUCTION(instruction, MOV_REG_IMMED, 3, BL, 0, 0, 3858);
+void test_decode_mov_word_to_register_sign_extension()
+{
+	uint8_t mov_ax_n12[] = {0xb8, 0xf4, 0xff};
+
+	Instruction instruction = decode_instruction(mov_ax_n12);
+	TEST_INSTRUCTION(instruction, MOV_REG_IMMED, 3, AX, IMMEDIATE, 0, 0xfff4);
 }
 
 void test_decode_mov_register_to_memory_signed_displacement()
@@ -143,8 +151,10 @@ int main()
 	RUN_TEST(test_decode_mov_memory_to_register_direct);
 	RUN_TEST(test_decode_mov_memory_to_register_byte_displacement);
 	RUN_TEST(test_decode_mov_memory_to_register_wide_displacement);
-	RUN_TEST(test_decode_mov_imm_to_register_byte);
-	RUN_TEST(test_decode_mov_imm_to_register_wide);
+	RUN_TEST(test_decode_mov_byte_to_register_positive);
+	RUN_TEST(test_decode_mov_byte_to_register_negative);
+	RUN_TEST(test_decode_mov_word_to_register);
+	RUN_TEST(test_decode_mov_word_to_register_sign_extension);
 	RUN_TEST(test_decode_mov_register_to_memory_signed_displacement);
 	RUN_TEST(test_decode_mov_memory_to_register_signed_displacement);
 	RUN_TEST(test_decode_mov_word_to_memory_explicit);
