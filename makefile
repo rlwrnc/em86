@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-g -Wall
+CFLAGS=-g -Wall -std=c99
 
 SOURCE_DIR=source
 BINARY_DIR=binaries
@@ -11,7 +11,7 @@ OBJECTS=$(patsubst $(SOURCE_DIR)/%.c, $(BINARY_DIR)/%.o, $(SOURCES))
 all: em86 test
 
 em86: $(BINARY_DIR) $(OBJECTS)
-	@echo Linking $@
+	@echo Linking \"$@\"
 	@$(CC) $(CFLAGS) $(OBJECTS) -o $@
 
 .PHONY: test
@@ -24,7 +24,7 @@ $(TEST_DIR)/test: $(BINARY_DIR) $(BINARY_DIR)/em86.o $(TEST_DIR)/test.c
 	@$(CC) $(CFLAGS) $(TEST_DIR)/test.c test-framework/unity.c $(BINARY_DIR)/em86.o -o $(TEST_DIR)/test
 
 $(BINARY_DIR)/%.o: $(SOURCE_DIR)/%.c
-	@echo Compiling $<
+	@echo Compiling \"$<\"
 	@$(CC) $(CFLAGS) $< -c -o $@
 
 $(BINARY_DIR):
