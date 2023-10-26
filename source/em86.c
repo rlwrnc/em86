@@ -106,6 +106,8 @@ Instruction decode_instruction(unsigned char *instruction_ptr)
 	};
 	
 	DecodeFunc decode = opcode_dispatch[instruction_ptr[0]];
+	if (decode == 0)
+		return (Instruction) {0};
 	return decode(instruction_ptr);
 }
 
