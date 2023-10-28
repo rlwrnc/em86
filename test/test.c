@@ -99,7 +99,7 @@ void test_decode_mov_word_to_register()
 	uint8_t mov_bx_3858[] = {0xbb, 0x12, 0x0f};
 	
 	Instruction instruction = decode_instruction(mov_bx_3858);
-	TEST_INSTRUCTION(instruction, MOV_REG_IMMED, 3, BL, IMMEDIATE, 0, 0x0f12);
+	TEST_INSTRUCTION(instruction, MOV_REG_IMMED, 3, BX, IMMEDIATE, 0, 0x0f12);
 }
 
 void test_decode_mov_word_to_register_sign_extension()
@@ -120,10 +120,10 @@ void test_decode_mov_register_to_memory_signed_displacement()
 
 void test_decode_mov_memory_to_register_signed_displacement()
 {
-	uint8_t mov_dx_bx_n30[] = {0x8b, 0x57, 0xe0 };
+	uint8_t mov_dx_bx_n30[] = {0x8b, 0x57, 0xe2 };
 
 	Instruction instruction = decode_instruction(mov_dx_bx_n30);
-	TEST_INSTRUCTION(instruction, MOV_RM_REG, 3, DX, BX_8, (uint16_t) -30, 0);
+	TEST_INSTRUCTION(instruction, MOV_RM_REG, 3, DX, BX_8, 0xe2, 0);
 }
 
 void test_decode_mov_byte_to_memory_explicit()
