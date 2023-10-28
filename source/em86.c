@@ -149,7 +149,8 @@ Instruction decode_mov_reg_immed(const uint8_t *const inst_ptr)
 	Instruction inst = {MOV_REG_IMMED, 2, .source = IMMEDIATE};
 
 	bool is_wide = inst_ptr[0] & 0b00001000;
-	uint8_t reg = inst_ptr[0] & 0b00000111;
+	// NOTE: we need to include the 'is_wide' bit for reg_lookup to work
+	uint8_t reg = inst_ptr[0] & 0b00001111;
 
 	inst.destination = reg_lookup[reg];
 	
