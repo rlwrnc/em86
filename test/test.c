@@ -12,6 +12,16 @@
 		TEST_ASSERT_EQUAL_UINT16(ex_data, instruction.data); \
 	} while (0)
 
+void test_instruction(Instruction *expected, Instruction *actual)
+{
+	TEST_ASSERT_EQUAL_UINT(expected->type, actual->type);
+	TEST_ASSERT_EQUAL_UINT(expected->number_of_bytes, actual->number_of_bytes);
+	TEST_ASSERT_EQUAL_UINT16(expected->destination, actual->destination);
+	TEST_ASSERT_EQUAL_UINT16(expected->source, actual->source);
+	TEST_ASSERT_EQUAL_UINT16(expected->displacement, actual->displacement);
+	TEST_ASSERT_EQUAL_UINT16(expected->data, actual->data);
+}
+
 void setUp()
 {
 }
@@ -131,15 +141,16 @@ void test_decode_mov_byte_to_memory_explicit()
 	uint8_t mov_bp_di_9[] = {0xc6, 0x03, 0x09};
 
 	Instruction instruction = decode_instruction(mov_bp_di_9);
-	TEST_INSTRUCTION(instruction, MOV_RM_IMMED, 3, BP_DI, 0, 0, 9);
+	TEST_INSTRUCTION(instruction, MOV_RM_IMMED, 3, BP_DI, IMMEDIATE, 0, 9);
 }
 
 void test_decode_mov_word_to_memory_explicit()
 {
 	uint8_t mov_di_901_340[] = {0xc7, 0x85, 0x85, 0x03, 0x54, 0x01};
 
-	Instruction instruction = decode_instruction(mov_di_901_340);
-	TEST_INSTRUCTION(instruction, MOV_RM_IMMED, 6, DI_16, 0, 901, 340);
+	Instruction expected = {MOV_RM_IMMED, 6, DI_16, IMMEDIATE, 901, 340};
+	Instruction result = decode_instruction(mov_di_901_340);
+	test_instruction(&expected, &result);
 }
 
 int main()
@@ -157,7 +168,7 @@ int main()
 	RUN_TEST(test_decode_mov_word_to_register_sign_extension);
 	RUN_TEST(test_decode_mov_register_to_memory_signed_displacement);
 	RUN_TEST(test_decode_mov_memory_to_register_signed_displacement);
-	RUN_TEST(test_decode_mov_word_to_memory_explicit);
+	RUN_TEST(test_decode_mov_byte_to_memory_explicit);
 	RUN_TEST(test_decode_mov_word_to_memory_explicit);
 	return UnityEnd();
 }

@@ -101,7 +101,7 @@ Instruction decode_mov_rm_immed(const uint8_t *const inst_ptr)
 
 	bool is_wide = inst_ptr[0] & 1;
 
-	uint8_t mode = inst_ptr[1] & 0b11000000;
+	uint8_t mode = (inst_ptr[1] & 0b11000000) >> 6;
 	uint8_t rm   = inst_ptr[1] & 0b00000111;
 
 	if (mode == 0) {
@@ -164,7 +164,7 @@ Instruction decode_mov_reg_immed(const uint8_t *const inst_ptr)
 	return inst;
 }
 
-Instruction decode_instruction(unsigned char *instruction_ptr)
+Instruction decode_instruction(uint8_t *instruction_ptr)
 {
 	typedef Instruction (*DecodeFunc)(const uint8_t *const);
 	static DecodeFunc opcode_dispatch[256] = {
